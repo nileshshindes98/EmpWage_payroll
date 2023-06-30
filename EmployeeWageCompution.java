@@ -1,10 +1,11 @@
+import java.util.*;
+
 public class EmployeeWageCompution {
     public final String company;
     public final int empPerHrWage;
     public int numOFWorkingDays;
     public int totalHourPerMonth;
     public int totalEmpWage;
-
 
     public EmployeeWageCompution(String company, int empPerHrWage, int numOFWorkingDays, int totalHourPerMonth) {
         this.company = company;
@@ -21,7 +22,6 @@ public class EmployeeWageCompution {
         return "Total emp wage For " + company + " is: " + totalEmpWage;
     }
 
-
     public static void main(String[] args) {
         EmpWageBuilder empWage = new EmpWageBuilder();
         empWage.addCompanyEmpWage("TCS", 60, 10, 70);
@@ -29,40 +29,49 @@ public class EmployeeWageCompution {
         empWage.addCompanyEmpWage("DXC", 50, 8, 55);
         empWage.addCompanyEmpWage("Flipkart", 100, 20, 60);
         empWage.empWageCompute();
+        ArrayList<EmpWageBuilder> arrayList = new ArrayList<>(Arrays.asList(empWage));
+//        System.out.println("Company list"+arrayList.toString());
         System.out.println();
     }
-
 
     //emp wage for companys
 
 
-    public static class EmpWageBuilder {
+    public static class EmpWageBuilder implements IEmployeeWageCompution{
 
-        public final int FULL_TIME = 1;
-        public final int PART_TIME = 2;
+        public static final int FULL_TIME = 1;
+        public static final int PART_TIME = 2;
 
         private int numofCompanys = 0;
-        private EmployeeWageCompution[] employeeWageComputionArray;
+        private LinkedList<EmployeeWageCompution> employeeWageComputionsList;
+        private Map<String,EmployeeWageCompution> employeeWageComputionMap;
 
         public EmpWageBuilder() {
-            employeeWageComputionArray = new EmployeeWageCompution[5];
+            employeeWageComputionsList = new LinkedList<>();
+            employeeWageComputionMap = new HashMap<>();
         }
 
-        private void addCompanyEmpWage(String company, int empPerHrWage, int numOFWorkingDays, int totalHourPerMonth) {
-            employeeWageComputionArray[numofCompanys] = new EmployeeWageCompution(company, empPerHrWage, numOFWorkingDays, totalHourPerMonth);
-            numofCompanys++;
+        public void addCompanyEmpWage(String company, int empPerHrWage, int numOFWorkingDays, int totalHourPerMonth) {
+            EmployeeWageCompution employeeWageCompution  = new EmployeeWageCompution(company, empPerHrWage, numOFWorkingDays, totalHourPerMonth);
+            employeeWageComputionsList.add(employeeWageCompution);
+            employeeWageComputionMap.put(company,employeeWageCompution);
         }
 
-        private void empWageCompute() {
-            for (int i = 0; i < numofCompanys; i++) {
-                employeeWageComputionArray[i].setTotalEmpWage(this.empWageCompute(employeeWageComputionArray[i]));
-                System.out.println(employeeWageComputionArray[i]);
+        public void empWageCompute() {
+            for (int i = 0; i < employeeWageComputionsList.size(); i++) {
+                EmployeeWageCompution employeeWageCompution = employeeWageComputionsList.get(i);
+                employeeWageCompution.setTotalEmpWage(this.empWageCompute(employeeWageCompution));
+                System.out.println(employeeWageCompution);
             }
 
         }
 
+        public int getTotalWage(String company) {
+            return employeeWageComputionMap.get(company).totalEmpWage;
+        }
 
-        private int empWageCompute(EmployeeWageCompution employeeWageCompution) {
+
+        public int empWageCompute(EmployeeWageCompution employeeWageCompution) {
             int empHour = 0;
             int totalEmpHrs = 0;
             int totalWorkingDays = 0;
@@ -85,8 +94,5 @@ public class EmployeeWageCompution {
             }
             return totalEmpHrs * employeeWageCompution.empPerHrWage;
         }
-
     }
-
-
 }
